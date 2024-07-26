@@ -1,4 +1,3 @@
-// src/post/post.controller.ts
 import {
   Controller,
   Get,
@@ -10,6 +9,7 @@ import {
   UseGuards,
   Request,
   Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { Post as BlogPost } from './post.entity';
@@ -46,6 +46,36 @@ export class PostController {
     return this.postService.create(post);
   }
 
+  // @UseGuards(JwtAuthGuard)
+  // @Put(':id')
+  // async update(
+  //   @Param('id') id: string,
+  //   @Body() post: Partial<BlogPost>,
+  //   @Request() req,
+  // ) {
+  //   const existingPost = await this.postService.findOne(id);
+  //   if (!existingPost) {
+  //     throw new NotFoundException('Post not found');
+  //   }
+  //   if (existingPost.author.id !== req.user.userId) {
+  //     return { message: 'You can only update your own posts' };
+  //   }
+  //   return this.postService.update(id, post);
+  // }
+
+  // @UseGuards(JwtAuthGuard)
+  // @Delete(':id')
+  // async delete(@Param('id') id: string, @Request() req) {
+  //   const existingPost = await this.postService.findOne(id);
+  //   if (!existingPost) {
+  //     throw new NotFoundException('Post not found');
+  //   }
+  //   if (existingPost.author.id !== req.user.userId) {
+  //     return { message: 'You can only delete your own posts' };
+  //   }
+  //   return this.postService.delete(id);
+  // }
+
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(
@@ -53,9 +83,13 @@ export class PostController {
     @Body() post: Partial<BlogPost>,
     @Request() req,
   ) {
+    console.log('Authenticated User:', req.user); 
     const existingPost = await this.postService.findOne(id);
-    if (existingPost.author.id !== req.user.userId) {
-      return { message: 'You can only update your own posts' };
+    if (!existingPost) {
+      throw new NotFoundException('Post not found');
+    }
+    if (existingPost.author.id !== req.user.id) {
+      return { message: 'You can only update your own post' };
     }
     return this.postService.update(id, post);
   }
@@ -64,9 +98,13 @@ export class PostController {
   @Delete(':id')
   async delete(@Param('id') id: string, @Request() req) {
     const existingPost = await this.postService.findOne(id);
-    if (existingPost.author.id !== req.user.userId) {
-      return { message: 'You can only delete your own posts' };
+    if (!existingPost) {
+      throw new NotFoundException('Post not found');
+    }
+    if (existingPost.author.id !== req.user.id) {
+      return { message: 'You can only delete your own comments' };
     }
     return this.postService.delete(id);
   }
+
 }
