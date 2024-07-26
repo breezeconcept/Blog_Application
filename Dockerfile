@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:16-alpine AS build
+FROM node:18-alpine AS build
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Run the application
-FROM node:16-alpine
+FROM node:18-alpine
 
 # Set the working directory
 WORKDIR /usr/src/app
